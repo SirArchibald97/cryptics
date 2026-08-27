@@ -11,10 +11,10 @@
 
 <p class="mb-4 text-sm">
 	<a
-		href="/archive"
+		href="/"
 		class="text-stone-400 underline decoration-dotted underline-offset-4 transition hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
 	>
-		&larr; Archive
+		&larr; Calendar
 	</a>
 </p>
 

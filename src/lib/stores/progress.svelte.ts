@@ -1,7 +1,6 @@
 import { browser } from '$app/environment';
 import type { ProgressStore, PuzzleRecord } from '$lib/types';
 import { puzzles } from '$lib/data/puzzles';
-import { isUnlocked, unlockedPuzzles } from '$lib/utils/date';
 
 const STORAGE_KEY = 'cryptics:progress:v1';
 
@@ -45,30 +44,6 @@ export function recordReveal(id: string, hintsUsed: number, attempts: number) {
 	setRecord(id, 'revealed', hintsUsed, attempts);
 }
 
-function currentStreak(): number {
-	let streak = 0;
-	for (const p of unlockedPuzzles(puzzles)) {
-		if (records[p.id]?.status === 'solved') streak++;
-		else break;
-	}
-	return streak;
-}
-
-function maxStreak(): number {
-	const ascending = puzzles.filter((p) => isUnlocked(p)).slice().sort((a, b) => (a.date < b.date ? -1 : 1));
-	let max = 0;
-	let run = 0;
-	for (const p of ascending) {
-		if (records[p.id]?.status === 'solved') {
-			run++;
-			max = Math.max(max, run);
-		} else {
-			run = 0;
-		}
-	}
-	return max;
-}
-
 export const stats = {
 	get played() {
 		return Object.keys(records).length;
@@ -76,13 +51,11 @@ export const stats = {
 	get solved() {
 		return Object.values(records).filter((r) => r.status === 'solved').length;
 	},
-	get winPercent() {
-		return this.played === 0 ? 0 : Math.round((this.solved / this.played) * 100);
+	get total() {
+		return puzzles.length;
 	},
-	get currentStreak() {
-		return currentStreak();
-	},
-	get maxStreak() {
-		return maxStreak();
+	/** True once every puzzle on the calendar has been played (solved or revealed). */
+	get complete() {
+		return puzzles.every((p) => !!records[p.id]);
 	}
 };

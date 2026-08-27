@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { theme } from '$lib/stores/theme.svelte';
-	import StatsModal from './StatsModal.svelte';
 	import HowToPlayModal from './HowToPlayModal.svelte';
 
-	let showStats = $state(false);
 	let showHelp = $state(false);
 
 	const iconBtn =
@@ -17,26 +15,8 @@
 		</a>
 
 		<nav class="flex items-center gap-1">
-			<a href="/archive" class="{iconBtn} gap-1.5 px-3" aria-label="Archive">
-				<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<rect x="3.5" y="5" width="17" height="15" rx="2.5" />
-					<line x1="3.5" y1="9.5" x2="20.5" y2="9.5" />
-					<line x1="8" y1="3" x2="8" y2="6.5" />
-					<line x1="16" y1="3" x2="16" y2="6.5" />
-				</svg>
-				<span class="hidden text-sm font-medium sm:inline">Archive</span>
-			</a>
-
-			<button type="button" class={iconBtn} aria-label="Your stats" onclick={() => (showStats = true)}>
-				<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<line x1="5" y1="20" x2="5" y2="12" />
-					<line x1="12" y1="20" x2="12" y2="5" />
-					<line x1="19" y1="20" x2="19" y2="15" />
-				</svg>
-			</button>
-
 			<button type="button" class="{iconBtn} text-[13px] font-bold" aria-label="How to play" onclick={() => (showHelp = true)}>
-				<span class="flex h-[18px] w-[18px] items-center justify-center rounded-full border-[1.5px] border-current">?</span>
+				<span class="flex h-4.5 w-4.5 items-center justify-center rounded-full border-[1.5px] border-current">?</span>
 			</button>
 
 			<button type="button" class={iconBtn} aria-label="Toggle dark mode" onclick={() => theme.toggle()}>
@@ -66,5 +46,4 @@
 	</div>
 </header>
 
-<StatsModal bind:open={showStats} />
 <HowToPlayModal bind:open={showHelp} />

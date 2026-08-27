@@ -1,28 +1,19 @@
 <script lang="ts">
-	import { puzzles } from '$lib/data/puzzles';
-	import { getTodaysPuzzle } from '$lib/utils/date';
-	import PuzzleGame from '$lib/components/PuzzleGame.svelte';
-
-	const puzzle = getTodaysPuzzle(puzzles);
+	import CalendarGrid from '$lib/components/CalendarGrid.svelte';
+	import ProgressBar from '$lib/components/ProgressBar.svelte';
 </script>
 
 <svelte:head>
-	<title>Cryptics — Today's Clue</title>
+	<title>Cryptics — Calendar</title>
 </svelte:head>
 
-{#if puzzle}
-	<p class="mb-4 text-center text-sm font-medium text-stone-500 dark:text-stone-400">Today's clue</p>
-	{#key puzzle.id}
-		<PuzzleGame {puzzle} />
-	{/key}
-	<p class="mt-6 text-center text-sm">
-		<a
-			href="/archive"
-			class="text-stone-400 underline decoration-dotted underline-offset-4 transition hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
-		>
-			Browse past puzzles &rarr;
-		</a>
-	</p>
-{:else}
-	<p class="text-center text-stone-500 dark:text-stone-400">No puzzles yet — check back soon.</p>
-{/if}
+<h1 class="mb-1 text-center font-display text-2xl font-semibold text-stone-900 dark:text-stone-50">
+	Cryptics Calendar
+</h1>
+<p class="mb-4 text-center text-sm text-stone-500 dark:text-stone-400">
+	A new clue unlocks every day. Solve them all to win the prize.
+</p>
+
+<ProgressBar />
+
+<CalendarGrid />
