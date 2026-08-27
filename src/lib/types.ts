@@ -1,14 +1,4 @@
-export type ClueType =
-	| 'Anagram'
-	| 'Double Definition'
-	| 'Hidden Word'
-	| 'Charade'
-	| 'Container'
-	| 'Homophone'
-	| 'Deletion'
-	| 'Reversal';
-
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = "easy" | "medium" | "hard";
 
 export interface Puzzle {
 	/** Route-safe slug, also the calendar date it unlocks — e.g. "2026-08-20" */
@@ -21,20 +11,19 @@ export interface Puzzle {
 	clue: string;
 	/** Solution, letters only, uppercase — no spaces or punctuation */
 	answer: string;
-	clueType: ClueType;
 	difficulty: Difficulty;
-	/** Progressive hints, revealed one at a time, easiest-to-most-revealing last */
-	hints: string[];
-	explanation: {
-		/** The exact substring of `clue` that acts as the definition */
+
+	/** Hints about different parts of the puzzle clue */
+	hints: {
+		indicator: string;
+		fodder: string;
 		definition: string;
-		/** Prose walkthrough of how the wordplay builds the answer */
-		wordplay: string;
 	};
+	explanation: string;
 }
 
 export interface PuzzleRecord {
-	status: 'solved' | 'revealed';
+	status: "solved" | "revealed";
 	hintsUsed: number;
 	attempts: number;
 	/** ISO timestamp of when this record was set */

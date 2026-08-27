@@ -7,16 +7,6 @@
 
 	let copied = $state(false);
 
-	const clueParts = $derived.by(() => {
-		const idx = puzzle.clue.toLowerCase().indexOf(puzzle.explanation.definition.toLowerCase());
-		if (idx === -1) return { before: puzzle.clue, match: '', after: '' };
-		return {
-			before: puzzle.clue.slice(0, idx),
-			match: puzzle.clue.slice(idx, idx + puzzle.explanation.definition.length),
-			after: puzzle.clue.slice(idx + puzzle.explanation.definition.length)
-		};
-	});
-
 	async function share() {
 		const ok = await copyToClipboard(buildShareText(puzzle, record));
 		if (ok) {
@@ -32,9 +22,7 @@
 			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
 				<path d="M4 12.5l5 5 11-11" />
 			</svg>
-			<p class="text-sm font-semibold">
-				Solved{record.hintsUsed > 0 ? ` with ${record.hintsUsed} hint${record.hintsUsed === 1 ? '' : 's'}` : ' with no hints'}!
-			</p>
+			<p class="text-sm font-semibold">Solved!</p>
 		</div>
 	{:else}
 		<div class="flex items-center gap-2 rounded-xl bg-stone-100 px-4 py-3 text-stone-600 dark:bg-stone-800/60 dark:text-stone-300">
@@ -47,26 +35,21 @@
 		</div>
 	{/if}
 
-	<div>
-		<p class="text-lg leading-snug text-stone-800 dark:text-stone-100">
-			{clueParts.before}<span class="underline decoration-amber-600 decoration-2 underline-offset-4 font-semibold text-stone-900 dark:decoration-amber-400 dark:text-stone-50">{clueParts.match}</span>{clueParts.after}
+	<div class="rounded-xl border border-stone-200 bg-stone-50 p-5 text-center dark:border-stone-800 dark:bg-stone-900/60">
+		<p class="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">Answer</p>
+		<p class="mt-1 font-display text-2xl font-bold tracking-wide text-stone-900 dark:text-stone-50">
+			{puzzle.answer}
+		</p>
+
+		<div class="mx-auto my-4 h-px w-16 bg-stone-200 dark:bg-stone-800"></div>
+
+		<p class="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">Explanation</p>
+		<p class="mt-1 text-sm leading-relaxed text-stone-600 dark:text-stone-300">
+			{puzzle.explanation}
 		</p>
 	</div>
 
-	<div class="flex flex-wrap items-center gap-2">
-		<span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-			{puzzle.clueType}
-		</span>
-		<span class="font-display text-2xl font-bold tracking-wide text-stone-900 dark:text-stone-50">
-			{puzzle.answer}
-		</span>
-	</div>
-
-	<p class="rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm leading-relaxed text-stone-600 dark:border-stone-800 dark:bg-stone-900/60 dark:text-stone-300">
-		{puzzle.explanation.wordplay}
-	</p>
-
-	<Button variant="secondary" onclick={share}>
+	<Button variant="secondary" onclick={share} class="w-full">
 		{#if copied}
 			Copied!
 		{:else}

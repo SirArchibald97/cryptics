@@ -18,15 +18,35 @@
 <Modal bind:open title="How to play">
 	<div class="space-y-4 text-sm text-stone-600 dark:text-stone-300">
 		<p>
-			Every clue has two parts hiding in plain sight: a <strong class="text-stone-900 dark:text-stone-50">definition</strong>
-			(a plain synonym, usually at the start or end) and <strong class="text-stone-900 dark:text-stone-50">wordplay</strong>
-			that builds the same answer a different way. The number in brackets tells you how many letters to expect.
+			Every clue hides a <strong class="text-stone-900 dark:text-stone-50">definition</strong> (a plain synonym) and
+			<strong class="text-stone-900 dark:text-stone-50">wordplay</strong> that builds the same answer a different way.
+			The number in brackets tells you how many letters to expect.
 		</p>
-		<p>Type your answer, hit <strong class="text-stone-900 dark:text-stone-50">Guess</strong>, and wait for green.</p>
-		<p>
-			Stuck? <strong class="text-stone-900 dark:text-stone-50">Get a hint</strong> — each one gives away a little more, from
-			the clue type down to the first letter. Or reveal the answer outright and read the full breakdown.
-		</p>
+		<p>Fill in the boxes, hit <strong class="text-stone-900 dark:text-stone-50">Guess</strong>, and wait for green.</p>
+		<div>
+			<p class="mb-1.5">
+				Stuck? Three one-time hints highlight a part of the clue right where it lives:
+			</p>
+			<ul class="ml-1 space-y-1">
+				<li class="flex items-center gap-2">
+					<span class="h-2.5 w-2.5 shrink-0 rounded-full bg-purple-400 dark:bg-purple-500"></span>
+					<strong class="text-stone-900 dark:text-stone-50">Indicator</strong> — the word that signals the wordplay type.
+				</li>
+				<li class="flex items-center gap-2">
+					<span class="h-2.5 w-2.5 shrink-0 rounded-full bg-yellow-400 dark:bg-yellow-500"></span>
+					<strong class="text-stone-900 dark:text-stone-50">Fodder</strong> — the raw material the wordplay works on.
+				</li>
+				<li class="flex items-center gap-2">
+					<span class="h-2.5 w-2.5 shrink-0 rounded-full bg-sky-400 dark:bg-sky-500"></span>
+					<strong class="text-stone-900 dark:text-stone-50">Definition</strong> — the plain-English synonym for the answer.
+				</li>
+			</ul>
+			<p class="mt-1.5">
+				Each can only be used once, in any order. Still stuck? <strong class="text-stone-900 dark:text-stone-50">Reveal a letter</strong>
+				as many times as you like, right up until only one letter is left — at that point it's guess or give up. Every
+				hint used counts against you, so use them freely once you're truly stuck.
+			</p>
+		</div>
 		<div>
 			<p class="mb-2 font-semibold text-stone-900 dark:text-stone-50">Common clue types</p>
 			<dl class="space-y-1.5">

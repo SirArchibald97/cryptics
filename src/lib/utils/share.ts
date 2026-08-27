@@ -1,10 +1,8 @@
 import type { Puzzle, PuzzleRecord } from '$lib/types';
 
-/** Builds a Wordle-style share string: one pip per hint slot, plus a result pip. */
+/** Builds a Wordle-style share string: one pip per hint used, plus a result pip. */
 export function buildShareText(puzzle: Puzzle, record: PuzzleRecord): string {
-	const pips = puzzle.hints
-		.map((_, i) => (i < record.hintsUsed ? '🟨' : '⬜'))
-		.join('');
+	const pips = record.hintsUsed > 0 ? '🟨'.repeat(record.hintsUsed) : '⬜';
 	const result = record.status === 'solved' ? '🟩' : '🟥';
 	return `Cryptics #${puzzle.number}\n${pips}${result}`;
 }
