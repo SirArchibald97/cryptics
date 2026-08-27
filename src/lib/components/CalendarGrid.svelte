@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { puzzles } from '$lib/data/puzzles';
 	import { isUnlocked, getTodaysPuzzle } from '$lib/utils/date';
+	import { getPuzzleNumber } from '$lib/utils/puzzleNumber';
 	import { getRecord, stats } from '$lib/stores/progress.svelte';
 	import PrizeReveal from './PrizeReveal.svelte';
 
-	const sorted = puzzles.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
+	const sorted = puzzles.slice().sort((a, b) => (a.id < b.id ? -1 : 1));
 	const todaysPuzzle = getTodaysPuzzle(puzzles);
 
 	const cellBase =
@@ -29,6 +30,7 @@
 		{@const locked = !isUnlocked(puzzle)}
 		{@const record = getRecord(puzzle.id)}
 		{@const isToday = puzzle.id === todaysPuzzle?.id}
+		{@const number = getPuzzleNumber(puzzles, puzzle.id)}
 
 		{#if locked}
 			<div
@@ -38,7 +40,7 @@
 					<rect x="5" y="10.5" width="14" height="9" rx="2" />
 					<path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
 				</svg>
-				<span class="text-xs">{puzzle.number}</span>
+				<span class="text-xs">{number}</span>
 			</div>
 		{:else}
 			<a
@@ -64,7 +66,7 @@
 						<circle cx="12" cy="12" r="2.5" />
 					</svg>
 				{/if}
-				<span>{puzzle.number}</span>
+				<span>{number}</span>
 			</a>
 		{/if}
 	{/each}

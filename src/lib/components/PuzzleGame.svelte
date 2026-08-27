@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import type { Puzzle } from '$lib/types';
 	import { getRecord, recordSolve, recordReveal } from '$lib/stores/progress.svelte';
+	import { getInProgress, saveInProgress, clearInProgress } from '$lib/stores/inProgress.svelte';
 	import { checkGuess, normalizeGuess } from '$lib/utils/clue';
 	import { formatDateLong } from '$lib/utils/date';
 	import { HINT_COLORS, HINT_DOT_COLORS, HINT_LABELS } from '$lib/utils/hintColors';
@@ -11,24 +12,38 @@
 	import LetterBoxInput from './LetterBoxInput.svelte';
 	import HighlightedClue from './HighlightedClue.svelte';
 
-	let { puzzle }: { puzzle: Puzzle } = $props();
+	let { puzzle, number }: { puzzle: Puzzle; number: number } = $props();
 
 	// Each puzzle gets a fresh component instance (see the {#key} in the routes that
 	// render this), so `puzzle` never changes during this instance's lifetime — this
 	// read is intentionally only meant to happen once, at mount.
 	const existing = untrack(() => getRecord(puzzle.id));
+	const existingProgress = untrack(() => getInProgress(puzzle.id));
 
 	let guess = $state('');
-	let attempts = $state(existing?.attempts ?? 0);
+	let attempts = $state(existing?.attempts ?? existingProgress?.attempts ?? 0);
 	let status = $state<'playing' | 'solved' | 'revealed'>(existing?.status ?? 'playing');
 	let shake = $state(false);
 	let confirmingReveal = $state(false);
 	let wrongFlash = $state(false);
 
-	let hintFlags = $state({ indicator: false, fodder: false, definition: false });
-	let lockedLetters = $state<Record<number, string>>({});
+	let hintFlags = $state(
+		existingProgress?.hintFlags ?? { indicator: false, fodder: false, definition: false }
+	);
+	let lockedLetters = $state<Record<number, string>>(existingProgress?.lockedLetters ?? {});
 
 	const finished = $derived(status !== 'playing');
+
+	// Persist hint/letter/attempt progress as it happens, so leaving and coming back
+	// to an unfinished puzzle doesn't lose what's already been used.
+	$effect(() => {
+		if (finished) return;
+		saveInProgress(puzzle.id, {
+			hintFlags: { ...hintFlags },
+			lockedLetters: { ...lockedLetters },
+			attempts
+		});
+	});
 	const answerLength = $derived(puzzle.answer.length);
 	const isGuessComplete = $derived(normalizeGuess(guess).length === answerLength);
 	const hintsUsedCount = $derived(
@@ -46,18 +61,16 @@
 	const hintKinds = ['indicator', 'fodder', 'definition'] as const;
 
 	// While playing, only highlight hints actually used; once finished, show the
-	// full breakdown regardless of which hints were used to get there.
+	// full breakdown regardless of which hints were used to get there. Each hint
+	// kind can have several substrings (e.g. multiple bits of fodder), so every
+	// string in the array gets its own highlight, all in that kind's color.
 	const displayHighlights = $derived(
 		hintKinds
 			.filter((kind) => finished || hintFlags[kind])
-			.map((kind): HighlightSpec => ({ text: puzzle.hints[kind], className: HINT_COLORS[kind] }))
+			.flatMap((kind) =>
+				puzzle.hints[kind].map((text): HighlightSpec => ({ text, className: HINT_COLORS[kind] }))
+			)
 	);
-
-	const difficultyStyle: Record<Puzzle['difficulty'], string> = {
-		easy: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
-		medium: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
-		hard: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
-	};
 
 	function submitGuess() {
 		if (finished || !isGuessComplete) return;
@@ -65,6 +78,7 @@
 		if (checkGuess(guess, puzzle.answer)) {
 			status = 'solved';
 			recordSolve(puzzle.id, hintsUsedCount, attempts);
+			clearInProgress(puzzle.id);
 		} else {
 			wrongFlash = true;
 			shake = true;
@@ -90,6 +104,7 @@
 	function revealAnswer() {
 		status = 'revealed';
 		recordReveal(puzzle.id, hintsUsedCount, attempts);
+		clearInProgress(puzzle.id);
 		confirmingReveal = false;
 	}
 </script>
@@ -97,16 +112,11 @@
 <div class="mx-auto w-full max-w-xl rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-7 dark:border-stone-800 dark:bg-stone-900">
 	<div class="mb-4 flex flex-wrap items-center justify-between gap-2">
 		<p class="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">
-			No. {puzzle.number} &middot; {formatDateLong(puzzle.date)}
+			No. {number} &middot; {formatDateLong(puzzle.id)}
 		</p>
-		<div class="flex items-center gap-2">
-			<span class="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-500 dark:bg-stone-800 dark:text-stone-400">
-				{hintsUsedDisplay} hint{hintsUsedDisplay === 1 ? '' : 's'} used
-			</span>
-			<span class="rounded-full px-2.5 py-1 text-xs font-semibold capitalize {difficultyStyle[puzzle.difficulty]}">
-				{puzzle.difficulty}
-			</span>
-		</div>
+		<span class="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-500 dark:bg-stone-800 dark:text-stone-400">
+			{hintsUsedDisplay} hint{hintsUsedDisplay === 1 ? '' : 's'} used
+		</span>
 	</div>
 
 	<p class="font-display text-2xl leading-snug font-medium text-stone-900 sm:text-3xl dark:text-stone-50">
@@ -200,7 +210,7 @@
 		</div>
 	{:else}
 		<div class="mt-6">
-			<ExplanationPanel {puzzle} record={record!} />
+			<ExplanationPanel {puzzle} {number} record={record!} />
 		</div>
 	{/if}
 </div>

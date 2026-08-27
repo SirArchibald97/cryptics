@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { untrack } from 'svelte';
 import type { ProgressStore, PuzzleRecord } from '$lib/types';
 import { puzzles } from '$lib/data/puzzles';
 
@@ -19,7 +20,11 @@ let records = $state<ProgressStore>(loadInitial());
 function persist() {
 	if (!browser) return;
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+		// Untracked so that if a future caller ever writes a record from inside an $effect,
+		// this deep read of `records` doesn't get attributed as a dependency of that same
+		// effect and cause it to loop on itself.
+		const json = untrack(() => JSON.stringify(records));
+		localStorage.setItem(STORAGE_KEY, json);
 	} catch {
 		// localStorage unavailable (private mode, quota, etc.) — progress just won't persist.
 	}

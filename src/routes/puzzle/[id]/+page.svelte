@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Cryptics — No. {data.puzzle.number}</title>
+	<title>Cryptics — No. {data.number}</title>
 </svelte:head>
 
 <p class="mb-4 text-sm">
@@ -19,5 +19,5 @@
 </p>
 
 {#key data.puzzle.id}
-	<PuzzleGame puzzle={data.puzzle} />
+	<PuzzleGame puzzle={data.puzzle} number={data.number} />
 {/key}

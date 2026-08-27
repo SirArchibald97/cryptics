@@ -3,12 +3,12 @@
 	import { buildShareText, copyToClipboard } from '$lib/utils/share';
 	import Button from './Button.svelte';
 
-	let { puzzle, record }: { puzzle: Puzzle; record: PuzzleRecord } = $props();
+	let { puzzle, number, record }: { puzzle: Puzzle; number: number; record: PuzzleRecord } = $props();
 
 	let copied = $state(false);
 
 	async function share() {
-		const ok = await copyToClipboard(buildShareText(puzzle, record));
+		const ok = await copyToClipboard(buildShareText(number, record));
 		if (ok) {
 			copied = true;
 			setTimeout(() => (copied = false), 2000);

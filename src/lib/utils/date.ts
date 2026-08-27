@@ -9,16 +9,16 @@ export function todayIso(): string {
 	return `${y}-${m}-${d}`;
 }
 
-/** A puzzle is playable once its date has arrived. */
+/** A puzzle is playable once its date (its id) has arrived. */
 export function isUnlocked(puzzle: Puzzle, today = todayIso()): boolean {
-	return puzzle.date <= today;
+	return puzzle.id <= today;
 }
 
 /** The most recent unlocked puzzle — i.e. "today's" puzzle. */
 export function getTodaysPuzzle(puzzles: Puzzle[], today = todayIso()): Puzzle | undefined {
 	const unlocked = puzzles.filter((p) => isUnlocked(p, today));
 	if (unlocked.length === 0) return undefined;
-	return unlocked.reduce((latest, p) => (p.date > latest.date ? p : latest));
+	return unlocked.reduce((latest, p) => (p.id > latest.id ? p : latest));
 }
 
 /** All unlocked puzzles, most recent first. */
@@ -26,7 +26,7 @@ export function unlockedPuzzles(puzzles: Puzzle[], today = todayIso()): Puzzle[]
 	return puzzles
 		.filter((p) => isUnlocked(p, today))
 		.slice()
-		.sort((a, b) => (a.date < b.date ? 1 : -1));
+		.sort((a, b) => (a.id < b.id ? 1 : -1));
 }
 
 export function formatDate(iso: string): string {
