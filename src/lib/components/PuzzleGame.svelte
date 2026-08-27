@@ -153,7 +153,7 @@
 							type="button"
 							onclick={() => useHint(kind)}
 							disabled={hintFlags[kind]}
-							class="rounded-full px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed {hintFlags[
+							class="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed {hintFlags[
 								kind
 							]
 								? HINT_COLORS[kind]
@@ -162,9 +162,14 @@
 							{hintFlags[kind] ? `${HINT_LABELS[kind]} ✓` : `Show ${HINT_LABELS[kind].toLowerCase()}`}
 						</button>
 					{/each}
-					<Button variant="secondary" onclick={revealLetter} disabled={unrevealedCount <= 1}>
+					<button
+						type="button"
+						onclick={revealLetter}
+						disabled={unrevealedCount <= 1}
+						class="cursor-pointer rounded-full bg-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 transition hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700"
+					>
 						Reveal a letter
-					</Button>
+					</button>
 				</div>
 				{#if Object.keys(lockedLetters).length > 0}
 					<p class="text-xs text-stone-400 dark:text-stone-500">
