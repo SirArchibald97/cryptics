@@ -44,7 +44,17 @@
 			attempts
 		});
 	});
-	const answerLength = $derived(puzzle.answer.length);
+	// `puzzle.answer` may contain spaces for multi-word answers (e.g. "EVIL STEPMOTHER") —
+	// `answerLength`/`answerLetters` strip those out so counters and letter-reveal indexing
+	// only ever deal with actual letters, while `wordLengths` drives the letter-box rows.
+	const answerLetters = $derived(normalizeGuess(puzzle.answer));
+	const answerLength = $derived(answerLetters.length);
+	const wordLengths = $derived(
+		puzzle.answer
+			.split(/\s+/)
+			.filter(Boolean)
+			.map((word) => normalizeGuess(word).length)
+	);
 	const isGuessComplete = $derived(normalizeGuess(guess).length === answerLength);
 	const hintsUsedCount = $derived(
 		(hintFlags.indicator ? 1 : 0) +
@@ -98,7 +108,7 @@
 			(i) => lockedLetters[i] === undefined
 		);
 		const idx = options[Math.floor(Math.random() * options.length)];
-		lockedLetters[idx] = puzzle.answer[idx];
+		lockedLetters[idx] = answerLetters[idx];
 	}
 
 	function revealAnswer() {
@@ -139,7 +149,7 @@
 			<div>
 				<LetterBoxInput
 					bind:value={guess}
-					length={answerLength}
+					wordLengths={wordLengths}
 					shake={shake}
 					invalid={wrongFlash}
 					lockedLetters={lockedLetters}

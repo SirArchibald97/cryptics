@@ -7,26 +7,40 @@
 	 * box steps back and clears the previous one. Indices present in
 	 * `lockedLetters` are pre-filled and non-editable (used for "reveal a
 	 * letter" hints) — navigation skips over them.
+	 *
+	 * `wordLengths` splits the boxes into one row per word for multi-word
+	 * answers (e.g. [4, 10] for "EVIL STEPMOTHER") — there's no box for the
+	 * space itself, just a new line. Letter indices stay flat and contiguous
+	 * across the whole answer regardless of the row breaks.
 	 */
 	let {
 		value = $bindable(''),
-		length,
+		wordLengths,
 		shake = false,
 		invalid = false,
 		lockedLetters = {},
 		onSubmit
 	}: {
 		value?: string;
-		length: number;
+		wordLengths: number[];
 		shake?: boolean;
 		invalid?: boolean;
 		lockedLetters?: Record<number, string>;
 		onSubmit?: () => void;
 	} = $props();
 
-	// `length` is fixed for this component's lifetime (the caller mounts a fresh
-	// instance per puzzle), so the box count is only ever meant to be read once.
-	const indices = untrack(() => Array.from({ length }, (_, i) => i));
+	// `wordLengths` is fixed for this component's lifetime (the caller mounts a
+	// fresh instance per puzzle), so these are only ever meant to be read once.
+	const length = untrack(() => wordLengths.reduce((a, b) => a + b, 0));
+	const rows = untrack(() => {
+		const result: number[][] = [];
+		let start = 0;
+		for (const wordLen of wordLengths) {
+			result.push(Array.from({ length: wordLen }, (_, i) => start + i));
+			start += wordLen;
+		}
+		return result;
+	});
 
 	let letters = $state<string[]>(untrack(() => Array(length).fill('')));
 	let boxes: (HTMLInputElement | null)[] = [];
@@ -120,30 +134,34 @@
 	}
 </script>
 
-<div class="flex flex-wrap justify-center gap-1.5 sm:gap-2 {shake ? 'animate-shake' : ''}">
-	{#each indices as i (i)}
-		<input
-			bind:this={boxes[i]}
-			type="text"
-			inputmode="text"
-			maxlength="1"
-			autocomplete="off"
-			autocapitalize="characters"
-			spellcheck="false"
-			disabled={isLocked(i)}
-			aria-label="Letter {i + 1} of {length}"
-			value={letters[i]}
-			oninput={(e) => handleInput(i, e)}
-			onkeydown={(e) => handleKeydown(i, e)}
-			onpaste={(e) => handlePaste(i, e)}
-			onfocus={handleFocus}
-			class="h-11 w-8 shrink-0 rounded-lg border-2 text-center font-display text-lg font-bold uppercase outline-none transition sm:h-14 sm:w-11 sm:text-2xl disabled:opacity-100 {isLocked(
-				i
-			)
-				? 'border-amber-400 bg-amber-100 text-amber-800 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-200'
-				: invalid
-					? 'border-red-400 bg-red-50 text-stone-900 focus:border-amber-600 dark:border-red-600 dark:bg-red-950/40 dark:text-stone-50'
-					: 'border-stone-200 bg-stone-50 text-stone-900 focus:border-amber-600 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-50'}"
-		/>
+<div class="flex flex-col items-center gap-2 {shake ? 'animate-shake' : ''}">
+	{#each rows as row, rowIndex (rowIndex)}
+		<div class="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+			{#each row as i (i)}
+				<input
+					bind:this={boxes[i]}
+					type="text"
+					inputmode="text"
+					maxlength="1"
+					autocomplete="off"
+					autocapitalize="characters"
+					spellcheck="false"
+					disabled={isLocked(i)}
+					aria-label="Letter {i + 1} of {length}"
+					value={letters[i]}
+					oninput={(e) => handleInput(i, e)}
+					onkeydown={(e) => handleKeydown(i, e)}
+					onpaste={(e) => handlePaste(i, e)}
+					onfocus={handleFocus}
+					class="h-11 w-8 shrink-0 rounded-lg border-2 text-center font-display text-lg font-bold uppercase outline-none transition sm:h-14 sm:w-11 sm:text-2xl disabled:opacity-100 {isLocked(
+						i
+					)
+						? 'border-amber-400 bg-amber-100 text-amber-800 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-200'
+						: invalid
+							? 'border-red-400 bg-red-50 text-stone-900 focus:border-amber-600 dark:border-red-600 dark:bg-red-950/40 dark:text-stone-50'
+							: 'border-stone-200 bg-stone-50 text-stone-900 focus:border-amber-600 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-50'}"
+				/>
+			{/each}
+		</div>
 	{/each}
 </div>
