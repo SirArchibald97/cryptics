@@ -8,7 +8,7 @@
 	let copied = $state(false);
 
 	async function share() {
-		const ok = await copyToClipboard(buildShareText(number, record));
+		const ok = await copyToClipboard(buildShareText(number, puzzle, record));
 		if (ok) {
 			copied = true;
 			setTimeout(() => (copied = false), 2000);
